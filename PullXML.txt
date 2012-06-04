@@ -5,12 +5,20 @@ byte mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED }; //physical mac address
 EthernetClient client;
 IPAddress server(50,23,120,99); // FavStar.fm
 
+int redPin = 12;    // represents no change
+int greenPin = 11;  // represents change to XML file
+int beanPin = 10;   // represents change and fires jelly bean relay
+
 unsigned long lastAttemptTime = 0;            // last time you connected to the server, in milliseconds
 
 String incomingString;
 String previousString;
 
 void setup() {
+  // initialize the digital pin as an output.
+  pinMode(redPin, OUTPUT);
+  pinMode(greenPin, OUTPUT);
+  pinMode(beanPin, OUTPUT);
   // start the serial library:
   Serial.begin(9600);
   // start the Ethernet connection:
@@ -20,7 +28,7 @@ Ethernet.begin(mac);
   
 }
 
-
+// The idea is to the compare the last string from the site to the new string from the site to see if it changed
 
 void loop() {
 	
@@ -37,7 +45,7 @@ void loop() {
     Serial.println(Ethernet.localIP());
     } 
   else {
-    // kf you didn't get a connection to the server:
+    // if you didn't get a connection to the server:
     Serial.println("connection failed");
   }
 	Serial.println("Requesting new string");
@@ -79,6 +87,26 @@ void loop() {
 			// Do cool stuff here
 			Serial.println(incomingString);
 		}
-}
+	}
+
+// routines that handle board output circuits aka cool stuff
+		
+void nochange() {
+	digitalWrite(redPin, HIGH);   // set the red LED on
+    digitalWrite(greenPin, LOW);
+    digitalWrite(beanPin, LOW);
+	}
+	
+void newfav() {
+	digitalWrite(redPin, LOW);   // turn on green LED and fire relay
+	digitalWrite(greenPin, HIGH);
+	digitalWrite(beanPin, HIGH);
+	delay(3000);              // wait for beans to drop
+	digitalWrite(redPin, HIGH);   // turn on red LED and close relay
+    digitalWrite(greenPin, LOW);
+    digitalWrite(beanPin, LOW);
+	}
+
+
 
 
